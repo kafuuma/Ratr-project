@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  database:
+    image: postgres:10.0
+
+    restart: always
+    expose:
+      - '5431'
+    environment:
+      - POSTGRES_USER=ratr
+      - POSTGRES_PASSWORD=ratr
+      - POSTGRES_DB=ratr
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  test:
+    build:
+      context: ../../
+      dockerfile: docker/test/Dockerfile
+    env_file:
+      - test.env
+    depends_on:
+      - database
+
+
+
+import base64
+>>  base64.b64encode('41187126-ab69-46ed-b7a5-7f3316c7942e:9ad0de137e194567bf310590b9471a63'.encode()) 
+Basic Auth
+Lets use basic auth to get an Auth Token with curl
+
+$ curl -i -X POST -H "Content-Type:application/json"  -H "Authorization: Basic NDExODcxMjYtYWI2OS00NmVkLWI3YTUtN2YzMzE2Yzc5NDJlOjlhZDBkZTEzN2UxOTQ1NjdiZjMxMDU5MGI5NDcxYTYz"  -d {} https://ericssonbasicapi2.azure-api.net/colection/token/ 
+

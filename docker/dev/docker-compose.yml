@@ -1,0 +1,41 @@
+version: '3'
+
+volumes:
+  database_data:
+
+services:
+  db:
+    container_name: database
+    env_file:
+      - ./dev.env
+    build:
+      context: ../../services/users
+      dockerfile: docker/db/Dockerfile
+    ports:
+      - '5431:5432'
+    volumes:
+      - database_data:/var/lib/postgresql/data
+      - /postgres:/var/lib/postgresql/data
+
+  auth:
+    container_name: ratr_auth
+    env_file:
+      - ./dev.env
+    build:
+      context: ../../services/users
+      dockerfile: docker/dev/Dockerfile
+    depends_on:
+      - db
+    expose:
+      - 5000
+
+  nginx:
+    container_name: nginx
+    build:
+      context: ../../services/nginx
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - auth
