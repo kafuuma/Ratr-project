@@ -1,0 +1,29 @@
+version: '3'
+
+volumes:
+  database_data:
+
+services:
+  db:
+    container_name: database
+    env_file:
+      - ./dev.env
+    build:
+      context: ../db
+      dockerfile: Dockerfile
+    ports:
+      - '5431:5432'
+    volumes:
+      - database_data:/var/lib/postgresql/data
+
+  auth:
+    container_name: ratr_auth
+    env_file:
+      - ./dev.env
+    build:
+      context: ../../
+      dockerfile: docker/auth/Dockerfile
+    depends_on:
+      - db
+    ports:
+      - '5001:5000'
