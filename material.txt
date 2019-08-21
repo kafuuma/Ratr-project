@@ -1,0 +1,35 @@
+USER postgres
+
+RUN chmod 0700 /var/lib/postgresql/data &&\
+    initdb /var/lib/postgresql/data &&\
+    echo "host all  all    0.0.0.0/0  md5" >> /var/lib/postgresql/data/pg_hba.conf &&\
+    echo "listen_addresses='*'" >> /var/lib/postgresql/data/postgresql.conf &&\
+    pg_ctl start &&\
+    psql -U postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'ratr'" | grep -q 1 || psql -U postgres -c "CREATE DATABASE ratr" &&\
+    psql --command "ALTER USER postgres WITH ENCRYPTED PASSWORD 'mysecurepassword';"
+
+
+version: '3'
+
+services:
+  db:
+    container_name: database
+    env_file:
+      - ./dev.env
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    ports:
+      - '5432:5432'
+
+  auth:
+    container_name: ratr_auth
+    env_file:
+      - ./dev.env
+    build:
+      context: ../
+      dockerfile: docker/auth/Dockerfile
+    depends_on:
+      - db
+    ports:
+      - '4000:4000'
